@@ -737,6 +737,15 @@ def activate_project_options(project_descriptions, requested_options):
     # create and return updated project descriptions
     return [desc.activate_project_options(requested_options) for desc in project_descriptions]
 
+def copytree_perms(src, dst, dir_mode=0o755, file_mode=0o644):
+    shutil.copytree(src, dst)
+
+    for root, dirs, files in os.walk(dst):
+        for dir in dirs:
+            os.chmod(os.path.join(root, dir), dir_mode)
+        for file in files:
+            os.chmod(os.path.join(root, file), file_mode)
+
 class Workspace:
     # project states
     ABSENT = "ABSENT"
@@ -780,15 +789,6 @@ class Workspace:
             dir = parent_dir
         raise Exception(f"No opp_env workspace found in '{from_dir}' or its parent directories, run 'opp_env init' to create one")
         #return None
-
-    def copytree_perms(src, dst, dir_mode=0o755, file_mode=0o644):
-        shutil.copytree(src, dst)
-
-        for root, dirs, files in os.walk(dst):
-            for dir in dirs:
-                os.chmod(os.path.join(root, dir), dir_mode)
-            for file in files:
-                os.chmod(os.path.join(root, file), file_mode)
 
     @staticmethod
     def init_workspace(dir=None, allow_existing=False, nixless=False):
